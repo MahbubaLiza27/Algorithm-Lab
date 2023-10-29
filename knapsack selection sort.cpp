@@ -1,81 +1,51 @@
 #include<bits/stdc++.h>
 using namespace std;
 
-typedef long long ll;
-typedef double dl;
-
-#define optimize() ios_base::sync_with_stdio(0); cin.tie(0); cout.tie(0);
-#define fraction() cout.unsetf( ios::floatfield); cout.precision(10); cout.setf(ios::fixed,ios::floatfield);
-#define mem(a, b) memset(a, b, sizeof(a) );
-#define endl '\n'
-
+#define ll long long
+#define all(v) (v).begin(),(v).end()
 
 struct item{
-    string name;
-    int weight, price;
-    double unit_price;
+    int name, weight, price;
 };
 
-bool cmp(item a, item b){
-    return a.unit_price > b.unit_price;
-}
+int main() {
 
-void bubbleSort(item arr[], int n){
-       for(int i = 0; i < n - 1; i++){
-        for(int j = 0; j < n - i -1; j++){
-            if(arr[j].unit_price < arr[j+1].unit_price){
-                swap( arr[j], arr[j+1] );
-            }
+   int sz, n;
+    cin >> sz >> n;
+
+    item arr[n + 1];
+    for(int i = 1; i <= n; i++) cin >> arr[i].name >> arr[i].weight >> arr[i].price;
+
+    int row = n+1;
+    int col = sz+1;
+
+    int knapsack[row][col];
+    memset(knapsack, 0, sizeof(knapsack));
+
+    for(int i = 1; i < row; i++){
+        for(int j = 1; j < col; j++){
+            if(j - arr[i].weight < 0) knapsack[i][j] = knapsack[i-1][j];
+            else knapsack[i][j] = max(knapsack[i-1][j], knapsack[i-1][j-arr[i].weight]+arr[i].price);
         }
     }
-}
 
-void selectionSort( item arr[], int n ){
-       for(int i = 0; i < n-1; i++){
-            int max_idx = i;
-            for(int j = i+1; j < n; j++){
-                if(arr[max_idx].unit_price < arr[j].unit_price){
-                    max_idx = j;
-                }
-            }
-            if(max_idx != i){
-                swap(arr[max_idx],arr[i]);
-            }
-       }
-}
-int main()
-{
-    optimize();
+    cout << knapsack[row-1][col-1] << endl;
 
-    int n;
-    int bag;
-    cin >> n >> bag;
-
-    item arr[n];
-    for(int i = 0; i < n; i++) cin >> arr[i].name >> arr[i].weight >> arr[i].price;
-    for(int i = 0; i < n; i++){
-        arr[i].unit_price = arr[i].price / arr[i].weight;
-    }
-
-    bubbleSort( arr, n);
-     for(int i = 0; i < n; i++) cout << arr[i].name << " " << arr[i].weight << " " << arr[i].price << " " << arr[i].unit_price << endl;
-
-    int profit = 0;
-    for(int i = 0; i < n; i++){
-        int x = 0;
-        if( bag != 0 ){
-            x = min ( arr[i].weight, bag );
-            bag -= x;
-            arr[i].weight -= x;
-            profit += (arr[i].unit_price * x);
-            arr[i].price -= ( arr[i].unit_price * x );
+    row--, col--;
+    vector<int> ans;
+    while(row>0 && col>0){
+        if(knapsack[row][col] == knapsack[row-1][col]) row--;
+        else{
+            ans.push_back(arr[row].name);
+            col -= arr[row].weight;
+            row--;
         }
-        else break;
     }
-    cout << profit << endl;
-    //for(int i = 0; i < n; i++) cout << "after stealing" << " " << arr[i].name << " " << arr[i].weight << " " << arr[i].price << " " << arr[i].unit_price << endl;
+    reverse(all(ans));
 
-    return 0;
+    cout << "Selected Items : " << endl;
+    for(auto u:ans) cout << u << " ";
+        cout << endl;
+
 }
-
 
